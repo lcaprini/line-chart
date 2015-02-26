@@ -1,5 +1,10 @@
       showScrubber: (svg, glass, axes, data, options, columnWidth) ->
         that = this
+        glass.on('click', ->
+          # Add click event for mobile applications
+          svg.selectAll('.glass-container').attr('opacity', 1)
+          that.updateScrubber(svg, d3.mouse(this), axes, data, options, columnWidth)
+        )
         glass.on('mousemove', ->
           svg.selectAll('.glass-container').attr('opacity', 1)
           that.updateScrubber(svg, d3.mouse(this), axes, data, options, columnWidth)

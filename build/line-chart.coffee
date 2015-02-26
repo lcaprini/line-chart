@@ -1,5 +1,5 @@
 ###
-line-chart - v1.1.7 - 05 February 2015
+line-chart - v1.1.7 - 26 February 2015
 https://github.com/n3-charts/line-chart
 Copyright (c) 2015 n3-charts
 ###
@@ -262,6 +262,17 @@ mod.factory('n3utils', ['$window', '$log', '$rootScope', ($window, $log, $rootSc
             .style('fill', (s) -> s.color)
             .style('fill-opacity', 0.8)
             .attr('transform', (s) -> "translate(" + x1(s) + ",0)")
+            .on('click', (series) ->
+              # Add click event for mobile applications
+              target = d3.select(d3.event.target)
+
+              handlers.onMouseOver?(svg, {
+                series: series
+                x: target.attr('x')
+                y: axes[series.axis + 'Scale'](target.datum().y0 + target.datum().y)
+                datum: target.datum()
+              })
+            )
             .on('mouseover', (series) ->
               target = d3.select(d3.event.target)
 
@@ -324,7 +335,20 @@ mod.factory('n3utils', ['$window', '$log', '$rootScope', ($window, $log, $rootSc
             )
 
         if options.tooltip.mode isnt 'none'
-          dotGroup.on('mouseover', (series) ->
+          dotGroup
+          .on('click', (series) ->
+            # Add click event for mobile applications
+            target = d3.select(d3.event.target)
+            target.attr('r', (s) -> s.dotSize + 2)
+
+            handlers.onMouseOver?(svg, {
+              series: series
+              x: target.attr('cx')
+              y: target.attr('cy')
+              datum: target.datum()
+            })
+          )
+          .on('mouseover', (series) ->
             target = d3.select(d3.event.target)
             target.attr('r', (s) -> s.dotSize + 2)
 
@@ -699,6 +723,10 @@ mod.factory('n3utils', ['$window', '$log', '$rootScope', ($window, $log, $rootSc
           )
           .style('fill', 'white')
           .style('fill-opacity', 0.000001)
+          .on('click', ->
+            # Add click event for mobile applications
+            handlers.onChartHover(svg, d3.select(d3.event.target), axes, data, options, columnWidth)
+          )
           .on('mouseover', ->
             handlers.onChartHover(svg, d3.select(d3.event.target), axes, data, options, columnWidth)
           )
@@ -1221,6 +1249,11 @@ mod.factory('n3utils', ['$window', '$log', '$rootScope', ($window, $log, $rootSc
 # src/utils/scrubber.coffee
       showScrubber: (svg, glass, axes, data, options, columnWidth) ->
         that = this
+        glass.on('click', ->
+          # Add click event for mobile applications
+          svg.selectAll('.glass-container').attr('opacity', 1)
+          that.updateScrubber(svg, d3.mouse(this), axes, data, options, columnWidth)
+        )
         glass.on('mousemove', ->
           svg.selectAll('.glass-container').attr('opacity', 1)
           that.updateScrubber(svg, d3.mouse(this), axes, data, options, columnWidth)

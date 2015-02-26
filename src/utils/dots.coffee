@@ -20,7 +20,20 @@
             )
 
         if options.tooltip.mode isnt 'none'
-          dotGroup.on('mouseover', (series) ->
+          dotGroup
+          .on('click', (series) ->
+            # Add click event for mobile applications
+            target = d3.select(d3.event.target)
+            target.attr('r', (s) -> s.dotSize + 2)
+
+            handlers.onMouseOver?(svg, {
+              series: series
+              x: target.attr('cx')
+              y: target.attr('cy')
+              datum: target.datum()
+            })
+          )
+          .on('mouseover', (series) ->
             target = d3.select(d3.event.target)
             target.attr('r', (s) -> s.dotSize + 2)
 

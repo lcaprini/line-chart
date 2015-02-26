@@ -105,6 +105,10 @@
           )
           .style('fill', 'white')
           .style('fill-opacity', 0.000001)
+          .on('click', ->
+            # Add click event for mobile applications
+            handlers.onChartHover(svg, d3.select(d3.event.target), axes, data, options, columnWidth)
+          )
           .on('mouseover', ->
             handlers.onChartHover(svg, d3.select(d3.event.target), axes, data, options, columnWidth)
           )

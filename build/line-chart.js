@@ -1,6 +1,6 @@
 
 /*
-line-chart - v1.1.7 - 05 February 2015
+line-chart - v1.1.7 - 26 February 2015
 https://github.com/n3-charts/line-chart
 Copyright (c) 2015 n3-charts
  */
@@ -269,6 +269,15 @@ mod.factory('n3utils', [
           return s.color;
         }).style('fill-opacity', 0.8).attr('transform', function(s) {
           return "translate(" + x1(s) + ",0)";
+        }).on('click', function(series) {
+          var target;
+          target = d3.select(d3.event.target);
+          return typeof handlers.onMouseOver === "function" ? handlers.onMouseOver(svg, {
+            series: series,
+            x: target.attr('x'),
+            y: axes[series.axis + 'Scale'](target.datum().y0 + target.datum().y),
+            datum: target.datum()
+          }) : void 0;
         }).on('mouseover', function(series) {
           var target;
           target = d3.select(d3.event.target);
@@ -352,7 +361,19 @@ mod.factory('n3utils', [
           'stroke-width': '2px'
         });
         if (options.tooltip.mode !== 'none') {
-          dotGroup.on('mouseover', function(series) {
+          dotGroup.on('click', function(series) {
+            var target;
+            target = d3.select(d3.event.target);
+            target.attr('r', function(s) {
+              return s.dotSize + 2;
+            });
+            return typeof handlers.onMouseOver === "function" ? handlers.onMouseOver(svg, {
+              series: series,
+              x: target.attr('cx'),
+              y: target.attr('cy'),
+              datum: target.datum()
+            }) : void 0;
+          }).on('mouseover', function(series) {
             var target;
             target = d3.select(d3.event.target);
             target.attr('r', function(s) {
@@ -735,7 +756,9 @@ mod.factory('n3utils', [
           "class": 'glass',
           width: dimensions.width - dimensions.left - dimensions.right,
           height: dimensions.height - dimensions.top - dimensions.bottom
-        }).style('fill', 'white').style('fill-opacity', 0.000001).on('mouseover', function() {
+        }).style('fill', 'white').style('fill-opacity', 0.000001).on('click', function() {
+          return handlers.onChartHover(svg, d3.select(d3.event.target), axes, data, options, columnWidth);
+        }).on('mouseover', function() {
           return handlers.onChartHover(svg, d3.select(d3.event.target), axes, data, options, columnWidth);
         });
       },
@@ -1320,6 +1343,10 @@ mod.factory('n3utils', [
       showScrubber: function(svg, glass, axes, data, options, columnWidth) {
         var that;
         that = this;
+        glass.on('click', function() {
+          svg.selectAll('.glass-container').attr('opacity', 1);
+          return that.updateScrubber(svg, d3.mouse(this), axes, data, options, columnWidth);
+        });
         glass.on('mousemove', function() {
           svg.selectAll('.glass-container').attr('opacity', 1);
           return that.updateScrubber(svg, d3.mouse(this), axes, data, options, columnWidth);

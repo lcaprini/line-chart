@@ -59,6 +59,17 @@
             .style('fill', (s) -> s.color)
             .style('fill-opacity', 0.8)
             .attr('transform', (s) -> "translate(" + x1(s) + ",0)")
+            .on('click', (series) ->
+              # Add click event for mobile applications
+              target = d3.select(d3.event.target)
+
+              handlers.onMouseOver?(svg, {
+                series: series
+                x: target.attr('x')
+                y: axes[series.axis + 'Scale'](target.datum().y0 + target.datum().y)
+                datum: target.datum()
+              })
+            )
             .on('mouseover', (series) ->
               target = d3.select(d3.event.target)
 
